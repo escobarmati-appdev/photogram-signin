@@ -1,4 +1,45 @@
 class UsersController < ApplicationController
+
+  def authenticate
+    #get the username from params
+    #get the password from params
+
+    #look up the record  from the db matchin username
+    #if there is no record, redirect back to sig in form
+
+    #if there is a record, check to see a password
+    #if not, , redirect back to sig in form
+
+    #if so, set the cookie
+    #redirect to home page
+
+
+
+    render({ :plain => "hi" })
+
+  end
+
+  def toast_cookies
+      reset_session
+
+      redirect_to("/", {:notice => "See ya latter!"})
+  end
+
+
+  def new_registration_form
+
+    render({ :template => "users/signup_form.html.erb" })
+  end
+
+  def new_session_form
+
+    render({ :template => "users/signin_form.html.erb" })
+
+  end
+
+
+
+
   def index
     @users = User.all.order({ :username => :asc })
 
@@ -16,10 +57,18 @@ class UsersController < ApplicationController
     user = User.new
 
     user.username = params.fetch("input_username")
+    user.password = params.fetch("input_password")
+    user.password_confirmation = params.fetch("input_password_confirmation")
 
-    user.save
+    save_status = user.save
 
-    redirect_to("/users/#{user.username}")
+    if save_status == true
+      session.store(:user_id, user.id)
+
+      redirect_to("/users/#{user.username}", { :noticed => "Welcome, " + user.username})
+    else
+      redirect_to("/user_sign_up", { :alert => user.errors.full_messages.to_sentence})
+    end
   end
 
   def update
